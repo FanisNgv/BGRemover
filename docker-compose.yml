@@ -1,0 +1,86 @@
+# Версия Docker Compose
+version: '3.8'
+
+# Определяем сервисы
+services:
+  frontend:
+    # Что планируем билдить
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    # Порты
+    ports:
+      - "8501:8501"
+    # Монтируем директорию
+    volumes:
+      - ./frontend:/src/frontend
+      - ./pyproject.toml:/src/pyproject.toml
+      - ./poetry.lock:/src/poetry.lock
+    # Переменные окружения
+    environment:
+      - PYTHONUNBUFFERED=1
+      - API_URL=http://backend:8000
+    # Рестарт
+    restart: unless-stopped
+    # Пользовательская сеть
+    networks:
+      - app-network
+    depends_on:
+      backend:
+        condition: service_started
+
+  backend:
+    build:
+      context: .
+      dockerfile: app/Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./app:/src/app
+      - ./pyproject.toml:/src/pyproject.toml
+      - ./poetry.lock:/src/poetry.lock
+    environment:
+      - PYTHONUNBUFFERED=1
+      - POSTGRES_USER=${POSTGRES_USER:-remooovy_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_DB=${POSTGRES_DB:-remooovy_db}
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - SECRET_KEY=secret
+    restart: unless-stopped
+    networks:
+      - app-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    # Используем образ Postgres
+    image: postgres:15-alpine
+    # Проброс портов
+    ports:
+      - "5432:5432"
+    
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-remooovy_db}
+      - POSTGRES_USER=${POSTGRES_USER:-remooovy_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+    restart: unless-stopped
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-remooovy_user} -d ${POSTGRES_DB:-remooovy_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
+    name: remooovy_postgres_data
+
+# Определяем сеть, которая создает изолированную среду для контейнеров
+networks:
+  app-network:
+    driver: bridge

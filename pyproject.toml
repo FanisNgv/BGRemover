@@ -1,18 +1,36 @@
-[project]
+[tool.poetry]
 name = "remooovy"
 version = "0.1.0"
-description = ""
-authors = [
-    {name = "FanisNgv",email = "fanisnigamad@yandex.ru"}
-]
+description = "Background removal service"
+authors = ["FanisNgv <fanisnigamad@yandex.ru>"]
 readme = "README.md"
-requires-python = ">=3.13"
-dependencies = [
-    "fastapi (>=0.115.12,<0.116.0)",
-    "uvicorn (>=0.34.2,<0.35.0)"
+packages = [
+    { include = "app" },
+    { include = "frontend" }
 ]
+package-mode = false
 
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.12"
+uvicorn = "^0.34.2"
+sqlalchemy = "^2.0.41"
+celery = "^5.5.2"
+redis = "^6.1.0"
+pillow = "^11.2.1"
+alembic = "^1.15.2"
+streamlit = "^1.45.1"
+extra-streamlit-components = "^0.1.80"
+psycopg2-binary = "^2.9.9"
+python-dotenv = "^1.0.0"
+pydantic = {extras = ["email"], version = "^2.5.0"}
+python-jose = {extras = ["cryptography"], version = "^3.3.0"}
+passlib = {extras = ["bcrypt"], version = "^1.7.4"}
+python-multipart = "^0.0.6"
+requests = "^2.31.0"
+streamlit-javascript = "^0.1.5"
+streamlit-local-storage = "^0.0.25"
 
 [build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
+requires = ["poetry-core>=2.0.0"]
 build-backend = "poetry.core.masonry.api"
