@@ -136,34 +136,31 @@ def show_user_dashboard():
         uploaded_file = st.file_uploader("Загрузите изображение", type=["jpg", "jpeg", "png"])
 
         if uploaded_file is not None:
-            col1, col2 = st.columns(2)
-            with col1:
-                st.image(uploaded_file, caption="Исходное изображение")
-            with col2:
-                if st.button("Удалить фон", type="primary"):
-                    with st.spinner("Обработка изображения..."):
-                        try:
-                            result = remove_background(
-                                st.session_state.token_type,
-                                st.session_state.access_token,
-                                uploaded_file.getvalue(),
-                                model_mapping[model_choice]
-                            )
+            st.image(uploaded_file, caption="Исходное изображение")
+        if st.button("Удалить фон", type="primary"):
+            with st.spinner("Обработка изображения..."):
+                try:
+                    result = remove_background(
+                        st.session_state.token_type,
+                        st.session_state.access_token,
+                        uploaded_file.getvalue(),
+                        model_mapping[model_choice]
+                    )
 
-                            image_bytes = base64.b64decode(result["image"])
-                            result_img = io.BytesIO(image_bytes)
-                            
-                            st.image(result_img, caption="Результат")
-                            st.download_button(
-                                "Скачать результат",
-                                data=result_img,
-                                file_name="no_bg.png",
-                                mime="image/png"
-                            )
-                            st.session_state.credits = result["remaining_credits"]
-                            st.success(f"Готово! Осталось кредитов: {st.session_state.credits}")
-                        except Exception as e:
-                            st.error(f"Ошибка: {str(e)}")
+                    image_bytes = base64.b64decode(result["image"])
+                    result_img = io.BytesIO(image_bytes)
+
+                    st.image(result_img, caption="Результат")
+                    st.download_button(
+                        "Скачать результат",
+                        data=result_img,
+                        file_name="no_bg.png",
+                        mime="image/png"
+                    )
+                    st.session_state.credits = result["remaining_credits"]
+                    st.success(f"Готово! Осталось кредитов: {st.session_state.credits}")
+                except Exception as e:
+                    st.error(f"Ошибка: {str(e)}")
 
     except Exception as e:
         st.error(f"Ошибка при загрузке данных: {str(e)}")

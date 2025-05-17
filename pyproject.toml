@@ -29,8 +29,13 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-multipart = "^0.0.6"
 requests = "^2.31.0"
 streamlit-local-storage = "^0.0.25"
-torch = "^2.7.0"
-torchvision = "^0.22.0"
+torch = {version = "^2.7.0", source = "pytorch"}
+torchvision = {version = "^0.22.0", source = "pytorch"}
+
+[[tool.poetry.source]]
+name = "pytorch"
+url = "https://download.pytorch.org/whl/cu128"
+priority = "explicit"
 
 [build-system]
 requires = ["poetry-core>=2.0.0"]
