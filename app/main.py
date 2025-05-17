@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine
 from app.models import user
-from app.api import auth, user_actions
+from app.api import auth, user_actions, background_removal, ml
 
 user.Base.metadata.create_all(bind=engine)
 
@@ -22,3 +22,5 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(user_actions.router)
+app.include_router(background_removal.router)
+app.include_router(ml.router)

@@ -12,7 +12,8 @@ def make_request(
     endpoint: str,
     data: Dict[str, Any] = None,
     params: Dict[str, Any] = None,
-    headers: Dict[str, Any] = None
+    headers: Dict[str, Any] = None,
+    files: Dict[str, Any] = None
 ) -> requests.Response:
     """
     Общая функция для выполнения HTTP-запросов к API
@@ -20,10 +21,10 @@ def make_request(
     url = f"{API_URL}{endpoint}"
     logger.info(f"Making {method} request to {url}")
     
-    # Добавляем заголовок для работы с JSON
+    # Добавляем заголовок для работы с JSON если нет файлов
     if headers is None:
         headers = {}
-    if "Content-Type" not in headers:
+    if files is None and "Content-Type" not in headers:
         headers["Content-Type"] = "application/json"
     
     try:
@@ -31,10 +32,11 @@ def make_request(
         response = requests.request(
             method=method,
             url=url,
-            json=data if headers.get("Content-Type") == "application/json" else None,
-            data=data if headers.get("Content-Type") != "application/json" else None,
+            json=data if files is None and headers.get("Content-Type") == "application/json" else None,
+            data=data if files is None and headers.get("Content-Type") != "application/json" else None,
             params=params,
             headers=headers,
+            files=files,
             timeout=REQUEST_TIMEOUT,
             cookies=requests.cookies.RequestsCookieJar()
         )
@@ -119,9 +121,6 @@ def add_credits(token_type: str, access_token: str, amount: int) -> Dict[str, An
     return response.json()
 
 def remove_background(token_type: str, access_token: str, file: bytes, model: str) -> Dict[str, Any]:
-    """
-    Удаление фона изображения
-    """
     headers = {"Authorization": f"{token_type} {access_token}"}
     files = {"file": file}
     response = make_request("POST", f"/ml/remove_background/{model}", files=files, headers=headers)

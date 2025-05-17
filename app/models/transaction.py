@@ -22,5 +22,4 @@ class Transaction(Base):
     balance_after = Column(Integer, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Связь с пользователем
     user = relationship("User", back_populates="transactions") 

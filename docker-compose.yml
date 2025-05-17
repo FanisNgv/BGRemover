@@ -37,6 +37,7 @@ services:
       - "8000:8000"
     volumes:
       - ./app:/src/app
+      - ./background_removal:/src/background_removal
       - ./pyproject.toml:/src/pyproject.toml
       - ./poetry.lock:/src/poetry.lock
     environment:
