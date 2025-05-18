@@ -1,5 +1,4 @@
 import streamlit as st
-import requests
 import time
 from datetime import datetime
 from frontend.utils.api import get_user_transactions
@@ -62,7 +61,7 @@ if transactions:
     # Подготовка данных для таблицы
     table_data = []
     for t in transactions:
-        amount_str = f"+{t['amount']}" if t['type'] == 'credit_add' else f"-{t['amount']}"
+        amount_str = f"+{t['amount']}" if t['type'] == 'credit_add' else f"{t['amount']}"
         table_data.append({
             "Дата": format_date(t["created_at"]),
             "Тип": format_transaction_type(t["type"]),

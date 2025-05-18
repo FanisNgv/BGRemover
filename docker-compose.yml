@@ -16,6 +16,8 @@ services:
       - ./frontend:/src/frontend
       - ./pyproject.toml:/src/pyproject.toml
       - ./poetry.lock:/src/poetry.lock
+      - poetry_cache:/opt/poetry/cache
+      - pip_cache:/opt/pip/cache
     # Переменные окружения
     environment:
       - PYTHONUNBUFFERED=1
@@ -40,14 +42,17 @@ services:
       - ./background_removal:/src/background_removal
       - ./pyproject.toml:/src/pyproject.toml
       - ./poetry.lock:/src/poetry.lock
+      - poetry_cache:/opt/poetry/cache
+      - pip_cache:/opt/pip/cache
     environment:
       - PYTHONUNBUFFERED=1
-      - POSTGRES_USER=${POSTGRES_USER:-remooovy_user}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
-      - POSTGRES_DB=${POSTGRES_DB:-remooovy_db}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
-      - SECRET_KEY=secret
+      - SECRET_KEY=${SECRET_KEY}
+      - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_HUB_TOKEN}
     deploy:
       resources:
         reservations:
@@ -72,14 +77,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=${POSTGRES_DB:-remooovy_db}
-      - POSTGRES_USER=${POSTGRES_USER:-remooovy_user}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     restart: unless-stopped
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-remooovy_user} -d ${POSTGRES_DB:-remooovy_db}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -87,6 +92,10 @@ services:
 volumes:
   postgres_data:
     name: remooovy_postgres_data
+  poetry_cache:
+    name: remooovy_poetry_cache
+  pip_cache:
+    name: remooovy_pip_cache
 
 # Определяем сеть, которая создает изолированную среду для контейнеров
 networks:

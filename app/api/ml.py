@@ -3,17 +3,17 @@ from fastapi.responses import JSONResponse
 import base64
 from app.api.auth import get_current_user
 from app.models.user import User
+from app.models.transaction import Transaction, TransactionType
 from app.api.background_removal import remove_background as remove_bg
 from app.core.database import get_db
 from sqlalchemy.orm import Session
-import io
 
 router = APIRouter(prefix="/ml", tags=["ml"])
 
 MODEL_PRICES = {
-    "model1": 10,
-    "model2": 50,
-    "model3": 100
+    "deeplabv3": 10,
+    "rmbg": 50,
+    "rmbg2": 100
 }
 
 @router.post("/remove_background/{model}")
@@ -23,32 +23,40 @@ async def remove_background(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """
-    Удаление фона с изображения с использованием выбранной модели
-    """
+
     if model not in MODEL_PRICES:
-        raise HTTPException(status_code=400, detail="Неверная модель")
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Неверная модель. Доступные модели: {', '.join(MODEL_PRICES.keys())}"
+        )
     
     price = MODEL_PRICES[model]
     if current_user.credits < price:
-        raise HTTPException(status_code=400, detail="Недостаточно кредитов")
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Недостаточно кредитов. Необходимо: {price}, доступно: {current_user.credits}"
+        )
     
     try:
-        # Обработка изображения
-        result_bytes = await remove_bg(file)
+        result_bytes = await remove_bg(file, model)
         
-        # Конвертация результата в base64
         base64_image = base64.b64encode(result_bytes).decode('utf-8')
         
-        # Списание кредитов
-        db_user = db.query(User).filter(User.id == current_user.id).first()
-        db_user.credits -= price
-        db.add(db_user)
+        current_user.credits -= price
+        
+        transaction = Transaction(
+            user_id=current_user.id,
+            type=TransactionType.CREDIT_USE,
+            amount=-price,
+            balance_after=current_user.credits
+        )
+        
+        db.add(transaction)
         db.commit()
         
         return JSONResponse({
             "image": base64_image,
-            "remaining_credits": db_user.credits
+            "remaining_credits": current_user.credits
         })
         
     except Exception as e:

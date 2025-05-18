@@ -2,23 +2,37 @@ FROM python:3.12-slim
 
 WORKDIR /src
 
-# Установка poetry
-RUN pip install poetry
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    python3-dev \
+    libpng-dev \
+    libjpeg-dev \
+    && rm -rf /var/lib/apt/lists/*
 
-# Копируем файлы зависимостей
+ENV POETRY_HOME="/opt/poetry" \
+    POETRY_CACHE_DIR="/opt/poetry/cache" \
+    PIP_CACHE_DIR="/opt/pip/cache" \
+    POETRY_VERSION=1.7.1 \
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_CREATE=false
+
+RUN mkdir -p $POETRY_HOME \
+    && mkdir -p $POETRY_CACHE_DIR \
+    && mkdir -p $PIP_CACHE_DIR
+
+RUN --mount=type=cache,target=/opt/pip/cache \
+    pip install "poetry==$POETRY_VERSION"
+
 COPY pyproject.toml poetry.lock ./
 
-# Отключаем создание виртуального окружения внутри контейнера
 RUN poetry config virtualenvs.create false
 
-# Устанавливаем только зависимости (без установки проекта)
-RUN poetry install --no-root --only main --no-interaction --no-ansi
+RUN --mount=type=cache,target=/opt/poetry/cache \
+    --mount=type=cache,target=/opt/pip/cache \
+    poetry install --no-root --only main --no-interaction --no-ansi
 
-# Копируем код приложения
 COPY ./app /src/app
 
-# Добавляем директорию /src в PYTHONPATH
 ENV PYTHONPATH=/src
 
-# Запускаем приложение
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"] 

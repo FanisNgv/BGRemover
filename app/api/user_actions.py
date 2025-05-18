@@ -20,19 +20,15 @@ async def add_credits(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """
-    Добавляет указанное количество кредитов пользователю и создает запись о транзакции
-    """
+
     if credits_data.amount <= 0:
         raise HTTPException(
             status_code=400,
             detail="Количество кредитов должно быть положительным числом"
         )
     
-    # Обновляем баланс пользователя
     current_user.credits = (current_user.credits or 0) + credits_data.amount
     
-    # Создаем запись о транзакции
     transaction = Transaction(
         user_id=current_user.id,
         type=TransactionType.CREDIT_ADD,
@@ -55,9 +51,7 @@ async def get_transactions(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """
-    Получает историю транзакций текущего пользователя
-    """
+
     transactions = db.query(Transaction).filter(
         Transaction.user_id == current_user.id
     ).order_by(Transaction.created_at.desc()).all()

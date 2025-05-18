@@ -8,7 +8,6 @@ packages = [
     { include = "app" },
     { include = "frontend" }
 ]
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.12"
@@ -31,6 +30,10 @@ requests = "^2.31.0"
 streamlit-local-storage = "^0.0.25"
 torch = {version = "^2.7.0", source = "pytorch"}
 torchvision = {version = "^0.22.0", source = "pytorch"}
+transformers = "^4.51.3"
+scikit-image = "^0.25.2"
+kornia = "^0.7.1"
+timm = "^0.9.16"
 
 [[tool.poetry.source]]
 name = "pytorch"

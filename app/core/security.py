@@ -1,15 +1,14 @@
 from datetime import datetime, timedelta
-from typing import Optional
+from typing import Optional, Union, Any
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 import os
 
-# Настройки JWT
-SECRET_KEY = os.getenv("SECRET_KEY", "secret")
+SECRET_KEY = os.environ["SECRET_KEY"]
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7  # 7 дней
+ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")

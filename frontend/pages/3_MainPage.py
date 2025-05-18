@@ -123,14 +123,18 @@ def show_user_dashboard():
         
         model_choice = st.radio(
             "Выберите модель:",
-            ["Модель 1 (10 кредитов)", "Модель 2 (50 кредитов)", "Модель 3 (100 кредитов)"],
+            [
+                "DeepLabV3 (10 кредитов)", 
+                "RMBG-1.4 (50 кредитов)",
+                "RMBG-2.0 (100 кредитов)"
+            ],
             horizontal=True
         )
 
         model_mapping = {
-            "Модель 1 (10 кредитов)": "model1",
-            "Модель 2 (50 кредитов)": "model2",
-            "Модель 3 (100 кредитов)": "model3"
+            "DeepLabV3 (10 кредитов)": "deeplabv3",
+            "RMBG-1.4 (50 кредитов)": "rmbg",
+            "RMBG-2.0 (100 кредитов)": "rmbg2"
         }
 
         uploaded_file = st.file_uploader("Загрузите изображение", type=["jpg", "jpeg", "png"])
