@@ -40,3 +40,20 @@ BGRemover/
 └── .env.example              # Пример переменных окружения
 ```
 
+## ERD-диаграмма
+
+![image](https://github.com/user-attachments/assets/bf66e66f-e7b5-435e-8721-ce6aba2621b8)
+
+## Используемые модели
+
+1. [DeepLabV3](https://docs.pytorch.org/vision/stable/_modules/torchvision/models/segmentation/deeplabv3.html)
+2. [RMBG-1.4](https://huggingface.co/briaai/RMBG-1.4)
+3. [RMBG-2.0](https://huggingface.co/briaai/RMBG-2.0)
+
+## Описание API
+
+![image](https://github.com/user-attachments/assets/2d880e81-a6e6-44c5-8552-c2de4d91368d)
+
+## Руководство пользователя
+
+
